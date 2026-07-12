@@ -1,0 +1,30 @@
+{% extends 'cats/base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <h1 class="mb-4">{{ title }}</h1>
+
+    <div class="row">
+        {% for breed in objects_list %}
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">{{ breed.name }}</h5>
+                    <p class="card-text text-muted">
+                        {{ breed.description|truncatewords:20 }}
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        {% empty %}
+        <div class="col-12">
+            <div class="alert alert-info">
+                Пока нет добавленных пород.
+                <a href="/admin/" class="alert-link">Зайдите в админку</a>, чтобы добавить первые породы!
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
