@@ -1,0 +1,32 @@
+{% extends 'cats/base.html' %}
+{% load my_tags %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-sm">
+                <!-- Используем тег cats_media для безопасного пути к фото -->
+                <img src="{{ object.photo|cats_media }}"
+                        class="card-img-top"
+                        alt="{{ object.name }}"
+                        style="width: 100%; max-height: 300px; object-fit: contain; background-color: #f8f9fa;">
+
+                <div class="card-body">
+                    <h2 class="card-title">{{ object.name }}</h2>
+                    <p class="text-muted">Порода: {{ object.breed }}</p>
+                    <p class="text-muted">Дата рождения: {{ object.birth_date|default:"Не указана" }}</p>
+
+                    <hr>
+
+                    <div class="d-flex gap-2">
+                        <a href="{% url 'cats:cat_update' object.pk %}" class="btn btn-warning">✏️ Изменить</a>
+                        <a href="{% url 'cats:cat_delete' object.pk %}" class="btn btn-danger">🗑️ Удалить</a>
+                        <a href="{% url 'cats:cats_list' %}" class="btn btn-secondary">← Назад к списку</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

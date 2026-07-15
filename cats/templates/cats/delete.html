@@ -1,0 +1,25 @@
+{% extends 'cats/base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card border-danger shadow-sm">
+                <div class="card-body text-center">
+                    <h2 class="text-danger mb-4">️ Подтверждение удаления</h2>
+                    <p class="lead">Вы уверены, что хотите удалить кошку <strong>"{{ object.name }}"</strong>?</p>
+                    <p class="text-muted">Это действие нельзя отменить.</p>
+
+                    <form method="post" class="mt-4">
+                        {% csrf_token %}
+                        <div class="d-grid gap-2 col-6 mx-auto">
+                            <button type="submit" class="btn btn-danger btn-lg">Да, удалить</button>
+                            <a href="{% url 'cats:cat_detail' object.pk %}" class="btn btn-outline-secondary">Отмена</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

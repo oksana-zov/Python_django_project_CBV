@@ -1,5 +1,7 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect, get_object_or_404
 from cats.models import Breed, Cat
+from cats.forms import CatForm
+
 
 def index(request):
     context = {
@@ -30,3 +32,54 @@ def cats_list_view(request):
         'title': 'Все наши кошки',
     }
     return render(request, 'cats/cats.html', context)
+
+# --- НОВЫЕ ФУНКЦИИ CRUD ---
+def cat_detail_view(request, pk):
+    """Просмотр одной кошки"""
+    cat = get_object_or_404(Cat, pk=pk)
+    context = {
+        'object': cat,
+        'title': f'Кошка {cat.name}'
+    }
+    return render(request, 'cats/cat_detail.html', context)
+
+
+def cat_create_view(request):
+    """Создание новой кошки"""
+    if request.method == 'POST':
+        form = CatForm(request.POST, request.FILES)  # FILES обязателен для фото!
+        if form.is_valid():
+            form.save()
+            return redirect('cats:cats_list')  # Перенаправляем на список всех кошек
+
+    context = {'form': CatForm(), 'title': 'Добавить кошку'}
+    return render(request, 'cats/create_update.html', context)
+
+
+def cat_update_view(request, pk):
+    """Редактирование кошки"""
+    cat = get_object_or_404(Cat, pk=pk)
+
+    if request.method == 'POST':
+        form = CatForm(request.POST, request.FILES, instance=cat)
+        if form.is_valid():
+            form.save()
+            return redirect('cats:cat_detail', pk=pk)
+
+    context = {
+        'form': CatForm(instance=cat),
+        'object': cat,
+        'title': f'Изменить кошку {cat.name}'
+    }
+    return render(request, 'cats/create_update.html', context)
+
+
+def cat_delete_view(request, pk):
+    """Удаление кошки"""
+    cat = get_object_or_404(Cat, pk=pk)
+    if request.method == 'POST':
+        cat.delete()
+        return redirect('cats:cats_list')
+
+    context = {'object': cat, 'title': f'Удалить кошку {cat.name}'}
+    return render(request, 'cats/delete.html', context)
