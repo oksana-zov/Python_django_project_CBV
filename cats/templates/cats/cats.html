@@ -14,7 +14,7 @@
         {% for cat in objects_list %}
         <div class="col-md-4 mb-4">
             <div class="card h-100 shadow-sm">
-                <!-- Можно добавить маленькое фото, если есть -->
+
                 {% if cat.photo %}
                     <img src="/media/{{ cat.photo }}" class="card-img-top" alt="{{ cat.name }}" style="height: 200px; object-fit: cover;">
                 {% else %}
@@ -28,13 +28,13 @@
                     <!-- Кнопки действий внизу карточки -->
                     <div class="mt-auto d-flex gap-2">
                         <a href="{% url 'cats:cat_detail' cat.pk %}" class="btn btn-outline-primary btn-sm flex-grow-1">
-                            👁️ Подробнее
+
                         </a>
                         <a href="{% url 'cats:cat_update' cat.pk %}" class="btn btn-warning btn-sm">
                             ✏️
                         </a>
                         <a href="{% url 'cats:cat_delete' cat.pk %}" class="btn btn-danger btn-sm">
-                            🗑️
+
                         </a>
                     </div>
                 </div>

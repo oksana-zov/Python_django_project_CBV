@@ -1,26 +1,25 @@
-from django.db import models
 from django.contrib.auth.models import AbstractUser
-
+from django.db import models
 
 NULLABLE = {'blank': True, 'null': True}
 
 
 class User(AbstractUser):
-    username = None # Удаляем стандартное поле логина
+    username = None  # Отключаем стандартное поле логина
 
-    # Делаем email уникальным идентификатором
     email = models.EmailField(unique=True, verbose_name='email')
-
-    # Добавляем свои поля (телефон и телеграм)
+    first_name = models.CharField(max_length=150, verbose_name='first name', default='Anonymous')
+    last_name = models.CharField(max_length=150, verbose_name='last name', default='Anonymous')
+    avatar = models.ImageField(upload_to='users/', verbose_name='avatar', **NULLABLE)
     phone = models.CharField(max_length=35, verbose_name='phone number', **NULLABLE)
     telegram = models.CharField(max_length=150, verbose_name='telegram username', **NULLABLE)
+    is_active = models.BooleanField(default=True, verbose_name='active')
 
-    # Говорим Django использовать email для входа
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []
 
     def __str__(self):
-        return self.email
+        return f'{self.email} {self.first_name} {self.last_name}'
 
     class Meta:
         verbose_name = 'User'

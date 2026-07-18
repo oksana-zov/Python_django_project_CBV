@@ -17,11 +17,10 @@
     <div class="collapse bg-dark" id="navbarHeader">
         <div class="container">
             <div class="row">
-                <div class="col-sm-8 col-md-7 py-4">
-                    <h4 class="text-white">About</h4>
-                    <p class="text-muted">Add some information about the album below, the author, or any other
-                        background context. Make it a few sentences long so folks can pick up some informative tidbits.
-                        Then, link them off to some social networking sites or contact information.</p>
+               <div class="col-sm-8 col-md-7 py-4">
+                    <h4 class="text-white">О нашем сайте</h4>
+                    <p class="text-muted">Мы занимаемся разведением породистых кошек с любовью и заботой.
+                        Все наши питомцы здоровы, привиты и социализированы.</p>
                 </div>
                 <div class="col-sm-4 offset-md-1 py-4">
                     <h4 class="text-white">Меню</h4>
@@ -29,6 +28,14 @@
                         <li><a href="{% url 'cats:index' %}" class="text-white">Главная</a></li>
                         <li><a href="{% url 'cats:breeds' %}" class="text-white">Породы</a></li>
                         <li><a href="{% url 'cats:cats_list' %}" class="text-white">Кошки</a></li>
+                        <li class="py-2"><hr class="bg-secondary"></li>
+                        {% if user.is_authenticated %}
+                            <li><a href="{% url 'users:user_profile' %}" class="text-white">👤 Мой профиль</a></li>
+                            <li><a href="{% url 'users:user_logout' %}" class="text-white">🚪 Выйти</a></li>
+                        {% else %}
+                            <li><a href="{% url 'users:user_login' %}" class="text-white">🔑 Войти</a></li>
+                            <li><a href="{% url 'users:user_register' %}" class="text-white">📝 Регистрация</a></li>
+                        {% endif %}
                     </ul>
                 </div>
             </div>
