@@ -27,14 +27,25 @@
 
                     <!-- Кнопки действий внизу карточки -->
                     <div class="mt-auto d-flex gap-2">
-                        <a href="{% url 'cats:cat_detail' cat.pk %}" class="btn btn-outline-primary btn-sm flex-grow-1">
-
+                        <!-- Кнопка ПРОСМОТР -->
+                        <a href="{% url 'cats:cat_detail' cat.pk %}"
+                           class="btn btn-outline-primary btn-sm flex-grow-1"
+                           title="Подробнее">
+                           ️ Подробнее
                         </a>
-                        <a href="{% url 'cats:cat_update' cat.pk %}" class="btn btn-warning btn-sm">
-                            ✏️
-                        </a>
-                        <a href="{% url 'cats:cat_delete' cat.pk %}" class="btn btn-danger btn-sm">
 
+                        <!-- Кнопка ИЗМЕНИТЬ -->
+                        <a href="{% url 'cats:cat_update' cat.pk %}"
+                           class="btn btn-warning btn-sm"
+                           title="Редактировать">
+                           ✏️ Изм.
+                        </a>
+
+                        <!-- Кнопка УДАЛИТЬ -->
+                        <a href="{% url 'cats:cat_delete' cat.pk %}"
+                           class="btn btn-danger btn-sm"
+                           title="Удалить кошку">
+                           🗑️ Удалить
                         </a>
                     </div>
                 </div>

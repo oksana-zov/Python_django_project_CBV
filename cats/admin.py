@@ -10,7 +10,7 @@ class BreedAdmin(admin.ModelAdmin):
 
 @admin.register(Cat)
 class CatAdmin(admin.ModelAdmin):
-    list_display = ('pk', 'name', 'breed')  # Показываем ID, кличку и породу
+    list_display = ('pk', 'name', 'breed', 'owner')  # Показываем ID, кличку и породу
     list_filter = ('breed',)  # Добавляем фильтр справа по породам
     ordering = ('name',)  # Сортируем кошек по алфавиту
 

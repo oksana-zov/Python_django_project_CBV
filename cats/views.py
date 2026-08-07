@@ -1,6 +1,8 @@
 from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth.decorators import login_required
 from cats.models import Breed, Cat
 from cats.forms import CatForm
+from users.services import send_cat_creation
 
 
 def index(request):
@@ -44,13 +46,20 @@ def cat_detail_view(request, pk):
     return render(request, 'cats/cat_detail.html', context)
 
 
+@login_required()
 def cat_create_view(request):
-    """Создание новой кошки"""
     if request.method == 'POST':
-        form = CatForm(request.POST, request.FILES)  # FILES обязателен для фото!
+        form = CatForm(request.POST, request.FILES)
+
         if form.is_valid():
-            form.save()
-            return redirect('cats:cats_list')  # Перенаправляем на список всех кошек
+            cat_object = form.save(commit=False)  # Не сохраняем сразу!
+            cat_object.owner = request.user  # Назначаем хозяина
+            cat_object.save()  # Теперь сохраняем
+
+            # ОТПРАВКА ПИСЬМА
+            send_cat_creation(cat_object.owner.email, cat_object)
+
+            return redirect('cats:cats_list')  # адрес списка кошек
 
     context = {'form': CatForm(), 'title': 'Добавить кошку'}
     return render(request, 'cats/create_update.html', context)

@@ -141,6 +141,8 @@ STATIC_URL = 'static/'
 
 AUTH_USER_MODEL = 'users.User'
 
+LOGIN_URL = '/users/'
+
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Статика и Медиа
@@ -151,3 +153,22 @@ STATICFILES_DIRS = (BASE_DIR / 'static',)
 # Путь к папке с загружаемыми файлами (фото кошек)
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / "media"
+
+# --- НАСТРОЙКИ ПОЧТЫ ---
+#EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend' # Реальная отправка
+#EMAIL_HOST = 'smtp.yandex.ru'
+#EMAIL_PORT = 465
+#EMAIL_USE_SSL = True # Для 465 порта обычно используется SSL
+# EMAIL_USE_TLS = False # Если используем SSL, TLS обычно выключают
+
+# Берем данные из .env файла
+#EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
+#EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
+
+# Дополнительные настройки
+#SERVER_EMAIL = EMAIL_HOST_USER      # Адрес для технических писем (ошибки и т.д.)
+#DEFAULT_FROM_EMAIL = EMAIL_HOST_USER # Адрес "От кого" по умолчанию
+#EMAIL_ADMIN = EMAIL_HOST_USER       # Адрес администратора (если нужен)
+
+# Временная настройка для проверки логики
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
