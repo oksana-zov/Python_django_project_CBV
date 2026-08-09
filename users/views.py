@@ -9,103 +9,89 @@ import string
 from users.forms import UserRegisterForm, UserLoginForm, UserUpdateForm, UserChangePasswordForm
 from users.services import send_register_email, send_new_password_email
 
+from django.urls import reverse_lazy
+from django.views.generic import CreateView, UpdateView, DetailView
+from django.contrib.auth.views import LoginView, LogoutView, PasswordChangeView
+from django.contrib.auth.mixins import LoginRequiredMixin
+
+from users.models import User
+from users.forms import (
+    UserRegisterForm, UserLoginForm, UserUpdateForm,
+    UserChangePasswordForm
+)
+from users.services import send_register_email
+
 
 # РЕГИСТРАЦИЯ
-def user_register_view(request):
-    if request.method == 'POST':
-        form = UserRegisterForm(request.POST)
-        if form.is_valid():
-            new_user = form.save(commit=False)
-            new_user.set_password(form.cleaned_data['password'])
-            new_user.save()
+class UserRegisterView(CreateView):
+    model = User
+    form_class = UserRegisterForm
+    template_name = 'users/register_update.html'
+    success_url = reverse_lazy('users:user_login')  # <-- reverse_lazy обязательно!
 
-            # Отправка письма при регистрации
-            send_register_email(new_user.email)
+    extra_context = {'title': 'Создать аккаунт'}
 
-            return HttpResponseRedirect(reverse('users:user_login'))
-
-    context = {
-        'title': 'Создать аккаунт',
-        'form': UserRegisterForm()
-    }
-    return render(request, 'users/register_update.html', context=context)
+    def form_valid(self, form):
+        self.object = form.save(commit=False)
+        self.object.set_password(form.cleaned_data['password1'])
+        self.object.save()
+        send_register_email(self.object.email)
+        return super().form_valid(form)
 
 
 # ВХОД
-def user_login_view(request):
-    if request.method == 'POST':
-        form = UserLoginForm(request.POST)
-        if form.is_valid():
-            cd = form.cleaned_data
-            user = authenticate(email=cd['email'], password=cd['password'])
+class UserLoginView(LoginView):
+    template_name = 'users/login.html'
+    form_class = UserLoginForm
+    extra_context = {'title': 'Авторизация'}
 
-            if user is not None and user.is_active:
-                login(request, user)
-                return redirect('cats:index')
-            else:
-                return HttpResponse("Неверный логин/пароль или аккаунт неактивен")
-
-    context = {'title': 'Авторизация', 'form': UserLoginForm()}
-    return render(request, 'users/login.html', context)
+    # После входа кидаем на главную кошек
+    def get_success_url(self):
+        return reverse_lazy('cats:index')
 
 
-# ПРОФИЛЬ
-@login_required
-def user_profile_view(request):
-    user_object = request.user
-    context = {
-        'title': f'Ваш профиль {user_object}',
-        'object': user_object
-    }
-    return render(request, 'users/user_profile_read_only.html', context)
+# ПРОФИЛЬ (DetailView)
+class UserProfileView(LoginRequiredMixin, DetailView):
+    model = User
+    template_name = 'users/user_profile_read_only.html'
+
+    def get_object(self, queryset=None):
+        return self.request.user  # <-- Показываем текущего юзера, а не по ID
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = f'Профиль {self.object}'
+        return context
 
 
-# ОБНОВЛЕНИЕ ПРОФИЛЯ
-@login_required
-def user_update_view(request):
-    user_object = request.user
-    if request.method == "POST":
-        form = UserUpdateForm(request.POST, request.FILES, instance=user_object)
-        if form.is_valid():
-            form.save()
-            return HttpResponseRedirect(reverse('users:user_profile'))
+# РЕДАКТИРОВАНИЕ (UpdateView)
+class UserUpdateView(LoginRequiredMixin, UpdateView):
+    model = User
+    form_class = UserUpdateForm
+    template_name = 'users/register_update.html'
+    success_url = reverse_lazy('users:user_profile')
 
-    context = {
-        'object': user_object,
-        'title': f'Изменить профиль {user_object}',
-        'form': UserUpdateForm(instance=user_object)
-    }
-    return render(request, 'users/register_update.html', context=context)
+    def get_object(self, queryset=None):
+        return self.request.user
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = f'Изменить профиль: {self.object}'
+        return context
 
 
 # СМЕНА ПАРОЛЯ
-@login_required
-def user_change_password_view(request):
-    user_object = request.user
-    # Передаем пользователя в форму (обязательно для PasswordChangeForm)
-    form = UserChangePasswordForm(user_object, request.POST or None)
+class UserPasswordChangeView(LoginRequiredMixin, PasswordChangeView):
+    form_class = UserChangePasswordForm
+    template_name = 'users/change_password.html'
+    success_url = reverse_lazy('users:user_profile')
+    extra_context = {'title': 'Изменить пароль'}
 
-    if request.method == 'POST':
-        if form.is_valid():
-            user_object = form.save()
 
-            # Обновляем хеш сессии (чтобы не выкинуло из аккаунта)
-            update_session_auth_hash(request, user_object)
-
-            messages.success(request, 'Пароль был успешно изменен!')
-
-            # отправка письма
-            send_new_password_email(user_object.email, form.cleaned_data['new_password1'])
-
-            return HttpResponseRedirect(reverse('users:user_profile'))
-        else:
-            messages.error(request, 'Не удалось изменить пароль!')
-
-    context = {
-        'form': form,
-        'title': f'Изменить пароль {user_object}'
-    }
-    return render(request, 'users/change_password.html', context)
+# ВЫХОД
+class UserLogoutView(LogoutView):
+    template_name = 'users/logout.html'
+    extra_context = {'title': 'Выход'}
 
 
 @login_required
@@ -122,8 +108,3 @@ def user_generate_new_password_view(request):
     messages.success(request, 'Новый пароль сгенерирован и отправлен вам на почту!')
     return redirect(reverse('users:user_profile'))
 
-
-# ВЫХОД
-def user_logout_view(request):
-    logout(request)
-    return redirect('cats:index')

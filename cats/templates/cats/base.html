@@ -31,7 +31,11 @@
                         <li class="py-2"><hr class="bg-secondary"></li>
                         {% if user.is_authenticated %}
                             <li><a href="{% url 'users:user_profile' %}" class="text-white">👤 Мой профиль</a></li>
-                            <li><a href="{% url 'users:user_logout' %}" class="text-white">🚪 Выйти</a></li>
+                            <li><form method="post" action="{% url 'users:user_logout' %}" style="display:inline;">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-outline-danger btn-sm">🚪 Выйти</button>
+                                </form>
+                            </li>
                         {% else %}
                             <li><a href="{% url 'users:user_login' %}" class="text-white">🔑 Войти</a></li>
                             <li><a href="{% url 'users:user_register' %}" class="text-white">📝 Регистрация</a></li>

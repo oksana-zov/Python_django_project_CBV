@@ -1,11 +1,11 @@
+# users/forms.py
 from django import forms
-from django.contrib.auth.forms import PasswordChangeForm
-
+from django.contrib.auth.forms import UserCreationForm, AuthenticationForm, PasswordChangeForm
 from users.models import User
 from users.validators import validate_password
 
 
-# МИКСИН ДЛЯ СТИЛЕЙ
+# МИКСИН ДЛЯ СТИЛЕЙ (оставляем твой, он отличный!)
 class StyleFormMixin:
     """Автоматически добавляет Bootstrap-класс ко всем полям формы"""
 
@@ -15,38 +15,37 @@ class StyleFormMixin:
             field.widget.attrs['class'] = 'form-control'
 
 
-# 1. Форма регистрации
-class UserRegisterForm(StyleFormMixin, forms.ModelForm):
-    password = forms.CharField(label='Пароль', widget=forms.PasswordInput, validators=[validate_password])
-    password2 = forms.CharField(label='Повторите пароль', widget=forms.PasswordInput)
-
+# 1. ФОРМА РЕГИСТРАЦИИ (адаптированная UserCreationForm)
+class UserRegisterForm(StyleFormMixin, UserCreationForm):
     class Meta:
         model = User
         fields = ('email',)
 
+    # Переопределяем поле username на email (так как у нас кастомная модель)
+    username = None  # Убираем поле username
+    email = forms.EmailField(label='Email', max_length=254)
+
     def clean_password2(self):
         cd = self.cleaned_data
-        # Безопасно получаем значения (не вызовет ошибку, если поля нет)
-        password = cd.get('password')
+        password1 = cd.get('password1')
         password2 = cd.get('password2')
-        # Если одно из полей пустое (из-за ошибки валидации),
-        # просто выходим, чтобы не сравнивать несуществующие данные
-        if not password or not password2:
-            return password2
-        # Проверяем совпадение только если оба пароля существуют
-        if password != password2:
-            raise forms.ValidationError('Пароли не совпадают!')
 
+        if not password1 or not password2:
+            return password2
+
+        validate_password(password1)  # Валидатор
+        if password1 != password2:
+            raise forms.ValidationError('Пароли не совпадают!')
         return password2
 
 
-# 2. Форма входа
-class UserLoginForm(StyleFormMixin, forms.Form):
-    email = forms.EmailField(label='Email')
-    password = forms.CharField(label='Пароль', widget=forms.PasswordInput)
+# 2. ФОРМА ВХОДА (адаптированная AuthenticationForm)
+class UserLoginForm(StyleFormMixin, AuthenticationForm):
+    # Переопределяем поле username на email
+    username = forms.EmailField(label='Email', widget=forms.EmailInput(attrs={'autofocus': True}))
 
 
-# 3. Форма обновления профиля
+# 3. ФОРМА ОБНОВЛЕНИЯ ПРОФИЛЯ
 class UserUpdateForm(StyleFormMixin, forms.ModelForm):
     class Meta:
         model = User
@@ -55,4 +54,15 @@ class UserUpdateForm(StyleFormMixin, forms.ModelForm):
 
 # 4. ФОРМА СМЕНЫ ПАРОЛЯ
 class UserChangePasswordForm(StyleFormMixin, PasswordChangeForm):
-    pass
+    def clean_new_password2(self):
+        cd = self.cleaned_data
+        password1 = cd.get('new_password1')
+        password2 = cd.get('new_password2')
+
+        if not password1 or not password2:
+            return password2
+
+        validate_password(password1)  # валидатор
+        if password1 != password2:
+            raise forms.ValidationError('Пароли не совпадают!')
+        return password2
