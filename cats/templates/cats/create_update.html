@@ -29,6 +29,39 @@
                             </div>
                         {% endfor %}
 
+                        <!-- Блок Родословной (показываем только при редактировании) -->
+                        {% if object %}
+                        <div class="card mt-4 border-secondary">
+                            <div class="card-header bg-secondary text-white">Родословная</div>
+                            <div class="card-body">
+                                {{ formset.management_form }} <!-- ОБЯЗАТЕЛЬНО! Без этого Django не поймет структуру формсета -->
+
+                                {% for form in formset.forms %}
+                                    <div class="row mb-3 p-2 border-bottom">
+                                        <div class="col-md-6">
+                                            <label class="form-label">{{ form.parent_name.label }}</label>
+                                            {{ form.parent_name }}
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label">{{ form.parent_breed.label }}</label>
+                                            {{ form.parent_breed }}
+                                        </div>
+                                        <div class="col-12 mt-2">
+                                            <label class="form-label">{{ form.title.label }}</label>
+                                            {{ form.title }}
+                                        </div>
+                                        <!-- Ошибки валидации для этой формы родословной -->
+                                        {% if form.errors %}
+                                            <div class="invalid-feedback d-block mt-1">
+                                                {% for error in form.errors %}{{ error }}{% endfor %}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% endif %}
+
                         <div class="d-grid gap-2 mt-4">
                             <button type="submit" class="btn btn-primary btn-lg">
                                 {% if object %}Сохранить изменения{% else %}Добавить кошку{% endif %}

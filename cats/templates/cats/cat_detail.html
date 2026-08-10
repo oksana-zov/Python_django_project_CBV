@@ -20,8 +20,17 @@
                     <hr>
 
                     <div class="d-flex gap-2">
-                        <a href="{% url 'cats:cat_update' object.pk %}" class="btn btn-warning">✏️ Изменить</a>
-                        <a href="{% url 'cats:cat_delete' object.pk %}" class="btn btn-danger">🗑️ Удалить</a>
+                        <a href="{% url 'cats:cat_pedigree' object.pk %}" class="btn btn-info">📜 Родословная</a>
+                        {% if can_edit %}
+                            <a href="{% url 'cats:cat_update' object.pk %}" class="btn btn-warning">✏️ Изменить</a>
+                            <form method="post" action="{% url 'cats:cat_delete' object.pk %}" style="display:inline;">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-danger"
+                                        onclick="return confirm('Вы уверены, что хотите удалить эту кошку?')">
+                                    ️ Удалить
+                                </button>
+                            </form>
+                        {% endif %}
                         <a href="{% url 'cats:cats_list' %}" class="btn btn-secondary">← Назад к списку</a>
                     </div>
                 </div>

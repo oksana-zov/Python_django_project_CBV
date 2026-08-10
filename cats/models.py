@@ -1,6 +1,7 @@
 from django.db import models
 from django.conf import settings
 
+
 NULLABLE = {'blank': True, 'null': True}
 
 class Breed(models.Model):
@@ -26,6 +27,8 @@ class Cat(models.Model):
         blank=True,  # Разрешаем пустое значение при валидации форм
         verbose_name='Хозяин'
     )
+    is_active = models.BooleanField(default=True, verbose_name='Активность')
+
 
     def __str__(self):
         return f'{self.name} ({self.breed})'
@@ -33,3 +36,18 @@ class Cat(models.Model):
     class Meta:
         verbose_name = 'Кошка'
         verbose_name_plural = 'Кошки'
+
+
+# модель Родословной
+class Pedigree(models.Model):
+    cat = models.ForeignKey(Cat, on_delete=models.CASCADE, related_name='pedigrees', verbose_name='Кошка')
+    parent_name = models.CharField(max_length=100, verbose_name='Имя родителя')
+    parent_breed = models.CharField(max_length=100, verbose_name='Порода родителя')
+    title = models.CharField(max_length=200, blank=True, verbose_name='Титул/Звание')
+
+    class Meta:
+        verbose_name = 'Запись родословной'
+        verbose_name_plural = 'Записи родословной'
+
+    def __str__(self):
+        return f"{self.parent_name} ({self.parent_breed})"
