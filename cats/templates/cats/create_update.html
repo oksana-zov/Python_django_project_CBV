@@ -63,6 +63,12 @@
                         {% endif %}
 
                         <div class="d-grid gap-2 mt-4">
+                            {% if object %}
+                                <a href="{% url 'cats:cat_toggle' object.pk %}" class="btn btn-outline-warning">
+                                    {% if object.is_active %}Деактивировать{% else %}Активировать{% endif %}
+                                </a>
+                            {% endif %}
+
                             <button type="submit" class="btn btn-primary btn-lg">
                                 {% if object %}Сохранить изменения{% else %}Добавить кошку{% endif %}
                             </button>

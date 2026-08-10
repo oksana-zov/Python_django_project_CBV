@@ -7,7 +7,7 @@ class CatForm(StyleFormMixin, forms.ModelForm):
     class Meta:
         model = Cat
         #fields = '__all__'  # Берет все поля из модели Cat (name, breed, photo, birth_date)
-        exclude = ('owner', 'is_active') # Важно: исключаем владельца, чтобы пользователь не выбирал его сам
+        exclude = ('owner', 'is_active', 'views') # Важно: исключаем владельца, чтобы пользователь не выбирал его сам
 
     # --- ВАЛИДАЦИЯ Даты рождения ---
     def clean_birth_date(self):
@@ -26,3 +26,8 @@ class PedigreeForm(StyleFormMixin, forms.ModelForm):
     class Meta:
         model = Pedigree
         fields = '__all__'
+
+class CatAdminForm(CatForm):
+    class Meta(CatForm.Meta):
+        # Админу показываем ВСЕ поля, кроме owner (владелец назначается при создании)
+        exclude = ('owner',)

@@ -9,8 +9,9 @@ from django.http import Http404
 from django.forms import inlineformset_factory
 
 from cats.models import Breed, Cat, Pedigree
-from cats.forms import CatForm, CatCreateForm, PedigreeForm
+from cats.forms import CatForm, CatCreateForm, CatAdminForm, PedigreeForm
 from users.services import send_cat_creation
+from cats.services import send_views_mail
 
 
 # 1. ГЛАВНАЯ СТРАНИЦА (Список пород)
@@ -88,16 +89,34 @@ class CatDetailView(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['title'] = f'Кошка {self.object.name}'
+        cat = self.object
 
-        # Проверяем права для отображения кнопок редактирования/удаления
+        # проверяем права
         user = self.request.user
+        is_owner = False
         if user.is_authenticated:
-            is_owner = self.object.owner == user
+            is_owner = (cat.owner == user)
             is_staff = user.role in ['admin', 'moderator']
             context['can_edit'] = is_owner or is_staff
         else:
             context['can_edit'] = False
+
+        # Логика счетчика просмотров
+        # Получаем свежий объект, чтобы избежать проблем с кэшем/транзакциями
+        fresh_cat = get_object_or_404(Cat, pk=cat.pk)
+
+        # Увеличиваем ТОЛЬКО если это НЕ владелец
+        if not is_owner:
+            fresh_cat.views_count()
+
+            # Отправляем уведомление каждые 20 просмотров
+            # Проверяем fresh_cat.views, так как он уже обновлен
+            if fresh_cat.views % 20 == 0 and fresh_cat.views != 0 and cat.owner:
+                send_views_mail(fresh_cat, cat.owner.email, fresh_cat.views)
+
+        # Передаем актуальное число просмотров в шаблон
+        context['title'] = f'Кошка {cat.name}'
+        context['views_count'] = fresh_cat.views
 
         return context
 
@@ -129,9 +148,16 @@ class CatCreateView(LoginRequiredMixin, CreateView):
 # 7. РЕДАКТИРОВАНИЕ КОШКИ (с проверкой прав и родословной)
 class CatUpdateView(LoginRequiredMixin, UpdateView):
     model = Cat
-    form_class = CatForm
+    #form_class = CatForm
     template_name = 'cats/create_update.html'
     success_url = reverse_lazy('cats:cats_list')
+
+    # Динамический выбор формы в зависимости от роли
+    def get_form_class(self):
+        if self.request.user.role == 'admin':
+            return CatAdminForm
+        return CatForm # Для модератора и юзера обычная форма
+
 
     # Проверка прав доступа
     def get_object(self, queryset=None):
@@ -241,3 +267,17 @@ class CatDeleteView(LoginRequiredMixin, View):
 
         # Перенаправляем на список
         return HttpResponseRedirect(reverse_lazy('cats:cats_list'))
+
+
+# Переключение активности
+def cat_toggle_activity(request, pk):
+    cat = get_object_or_404(Cat, pk=pk)
+
+    # Проверка прав: только админ или владелец может переключать
+    if request.user.role not in ['admin', 'moderator'] and cat.owner != request.user:
+        raise Http404
+
+    cat.is_active = not cat.is_active
+    cat.save()
+
+    return redirect('cats:cats_list')

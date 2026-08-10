@@ -28,7 +28,11 @@ class Cat(models.Model):
         verbose_name='Хозяин'
     )
     is_active = models.BooleanField(default=True, verbose_name='Активность')
+    views = models.IntegerField(default=0, verbose_name='Просмотры')
 
+    def views_count(self):
+        self.views += 1
+        self.save()
 
     def __str__(self):
         return f'{self.name} ({self.breed})'

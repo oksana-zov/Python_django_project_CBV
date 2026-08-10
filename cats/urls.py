@@ -2,7 +2,7 @@ from django.urls import path
 from cats.views import (
     IndexView, BreedsListView, BreedCatsListView, CatsListView,
     CatDetailView, CatCreateView, CatUpdateView, CatDeleteView,
-    PedigreeView
+    PedigreeView, cat_toggle_activity
 )
 from cats.apps import CatsConfig
 
@@ -18,4 +18,5 @@ urlpatterns = [
     path('cats/create/', CatCreateView.as_view(), name='cat_create'),# Создание кошки
     path('cats/<int:pk>/update/', CatUpdateView.as_view(), name='cat_update'),# Редактирование кошки
     path('cats/<int:pk>/delete/', CatDeleteView.as_view(), name='cat_delete'),# Удаление кошки
+    path('cats/toggle/<int:pk>/', cat_toggle_activity, name='cat_toggle'), # Переключение активности кошки
 ]
