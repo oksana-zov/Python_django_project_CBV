@@ -36,12 +36,20 @@
                         </div>
                     </div>
 
-                    <div class="mt-4 d-flex gap-2 justify-content-center flex-wrap">
-                        <a href="{% url 'users:user_update' %}" class="btn btn-warning"> Редактировать профиль</a>
-                        <a href="{% url 'users:user_change_password' %}" class="btn btn-info text-white"> Сменить пароль</a>
-                        <a href="{% url 'users:user_logout' %}" class="btn btn-danger"> Выйти</a>
-                        <a href="{% url 'users:user_generate_password' %}" class="btn btn-outline-danger"> Сгенерировать новый</a>
-                    </div>
+                    <!-- Кнопки управления показываем ТОЛЬКО владельцу профиля -->
+                    {% if user == object %}
+                        <div class="mt-4 d-flex gap-2 justify-content-center flex-wrap">
+                            <a href="{% url 'users:user_update' %}" class="btn btn-warning">️ Редактировать профиль</a>
+                            <a href="{% url 'users:user_change_password' %}" class="btn btn-info text-white"> Сменить пароль</a>
+                            <a href="{% url 'users:user_logout' %}" class="btn btn-danger">🚪 Выйти</a>
+                            <a href="{% url 'users:user_generate_password' %}" class="btn btn-outline-danger">🎲 Сгенерировать новый</a>
+                        </div>
+                    {% else %}
+                        <!-- Для чужих профилей  -->
+                        <div class="mt-4 text-muted small">
+                            Это публичный профиль пользователя
+                        </div>
+                    {% endif %}
                 </div>
             </div>
         </div>

@@ -3,6 +3,7 @@ from users.apps import UsersConfig
 from users.views import (
     UserRegisterView, UserLoginView, UserProfileView,
     UserLogoutView, UserUpdateView, UserPasswordChangeView,
+    UserListView, UserPublicProfileView,
     user_generate_new_password_view
 )
 
@@ -16,4 +17,7 @@ urlpatterns = [
     path('update/', UserUpdateView.as_view(), name='user_update'),
     path('change_password/', UserPasswordChangeView.as_view(), name='user_change_password'),
     path('generate-password/', user_generate_new_password_view, name='user_generate_password'),
+    path('all_users/', UserListView.as_view(), name='users_list'),
+    path('user/<int:pk>/', UserPublicProfileView.as_view(), name='user_public_profile'),
+
 ]

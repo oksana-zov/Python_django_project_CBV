@@ -10,7 +10,7 @@ from users.forms import UserRegisterForm, UserLoginForm, UserUpdateForm, UserCha
 from users.services import send_register_email, send_new_password_email
 
 from django.urls import reverse_lazy
-from django.views.generic import CreateView, UpdateView, DetailView
+from django.views.generic import CreateView, UpdateView, DetailView, ListView
 from django.contrib.auth.views import LoginView, LogoutView, PasswordChangeView
 from django.contrib.auth.mixins import LoginRequiredMixin
 
@@ -48,6 +48,36 @@ class UserLoginView(LoginView):
     # После входа кидаем на главную кошек
     def get_success_url(self):
         return reverse_lazy('cats:index')
+
+
+# СПИСОК ВСЕХ ПОЛЬЗОВАТЕЛЕЙ
+class UserListView(LoginRequiredMixin, ListView):
+    model = User
+    template_name = 'users/users_list.html'
+    context_object_name = 'users_list'
+
+    def get_queryset(self):
+        # Показываем только активных пользователей
+        return super().get_queryset().filter(is_active=True)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = 'Все пользователи питомника'
+        return context
+
+
+# ПРОСМОТР ЧУЖОГО ПРОФИЛЯ (Публичный)
+class UserPublicProfileView(LoginRequiredMixin, DetailView):
+    model = User
+    template_name = 'users/user_profile_read_only.html'  # Используем тот же шаблон
+    context_object_name = 'object'  # Важно! Чтобы {{ object.telegram }} работал
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        user_obj = self.object
+        name = user_obj.get_full_name() or user_obj.email
+        context['title'] = f'Профиль: {name}'
+        return context
 
 
 # ПРОФИЛЬ (DetailView)

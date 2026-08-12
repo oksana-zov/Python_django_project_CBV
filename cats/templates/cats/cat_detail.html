@@ -16,6 +16,15 @@
                     <h2 class="card-title">{{ object.name }}</h2>
                     <p class="text-muted">Порода: {{ object.breed }}</p>
                     <p class="text-muted">Дата рождения: {{ object.birth_date|default:"Не указана" }}</p>
+                    <p class="text-muted">Хозяин:
+                        {% if object.owner %}
+                            <a href="{% url 'users:user_public_profile' object.owner.pk %}">
+                                {{ object.owner.get_full_name|default:object.owner.email }}
+                            </a>
+                        {% else %}
+                            Не указан
+                        {% endif %}
+                     </p>
                     <p class="text-muted">Просмотров: {{ views_count }}</p>
 
                     <hr>
