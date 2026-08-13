@@ -29,6 +29,7 @@
                         <li><a href="{% url 'cats:breeds' %}" class="text-white">Породы</a></li>
                         <li><a href="{% url 'cats:cats_list' %}" class="text-white">Кошки</a></li>
                         <li><a href="{% url 'users:users_list' %}" class="text-white">Пользователи</a></li>
+                        <li><a href="{% url 'reviews:reviews_list' %}" class="text-white">Отзывы</a></li>
                         <li class="py-2"><hr class="bg-secondary"></li>
                         {% if user.is_authenticated %}
                             <li><a href="{% url 'users:user_profile' %}" class="text-white">👤 Мой профиль</a></li>

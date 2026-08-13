@@ -1,0 +1,38 @@
+{% extends 'cats/base.html' %}
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h2>{{ review.title }}</h2>
+                    <p class="text-muted">
+                        Автор: {{ review.author }} |
+                        Кошка: <a href="{% url 'cats:cat_detail' review.cat.pk %}">{{ review.cat }}</a> |
+                        Дата: {{ review.created|date:"d.m.Y H:i" }}
+                    </p>
+                    <hr>
+                    <p>{{ review.content|linebreaks }}</p>
+                </div>
+
+                <!-- КАРТОЧНЫЙ ФУТЕР С КНОПКАМИ -->
+                <div class="card-footer bg-white border-top d-flex justify-content-between align-items-center py-3">
+                    <a href="{% url 'reviews:reviews_list' %}" class="btn btn-secondary btn-sm">← Назад к списку</a>
+
+                    <div class="d-flex gap-2">
+                        {% if user == review.author or user.role in 'admin,moderator' %}
+                            <a href="{% url 'reviews:review_update' review.slug %}" class="btn btn-warning btn-sm">Редактировать</a>
+                        {% endif %}
+
+                        {% if user.role in 'admin,moderator' %}
+                            <a href="{% url 'reviews:review_toggle' review.slug %}" class="btn btn-outline-warning btn-sm">
+                                {% if review.sign_of_review %}Скрыть отзыв{% else %}Опубликовать отзыв{% endif %}
+                            </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

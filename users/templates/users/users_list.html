@@ -21,6 +21,7 @@
         {% empty %}
         <div class="col-12"><p class="alert alert-info">Пользователей пока нет.</p></div>
         {% endfor %}
+        {% include 'cats/includes/inc_pagination.html' %}
     </div>
 </div>
 {% endblock %}

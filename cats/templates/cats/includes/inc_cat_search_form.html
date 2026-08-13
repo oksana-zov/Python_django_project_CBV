@@ -1,0 +1,7 @@
+<form action="{% url 'cats:cats_search' %}" method="get" class="d-flex mb-4">
+    <input class="form-control me-2" type="search" name="q"
+           placeholder="Поиск кошек (имя или порода)..."
+           value="{{ search_query|default:'' }}"
+           aria-label="Search">
+    <button class="btn btn-outline-success" type="submit">Найти</button>
+</form>

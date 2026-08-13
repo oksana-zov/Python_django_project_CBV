@@ -12,7 +12,7 @@ from cats.models import Breed, Cat, Pedigree
 from cats.forms import CatForm, CatCreateForm, CatAdminForm, PedigreeForm
 from users.services import send_cat_creation
 from cats.services import send_views_mail
-
+from django.db.models import Q
 
 # 1. ГЛАВНАЯ СТРАНИЦА (Список пород)
 class IndexView(ListView):
@@ -34,7 +34,8 @@ class IndexView(ListView):
 class BreedsListView(ListView):
     model = Breed
     template_name = 'cats/breeds.html'
-    context_object_name = 'objects_list'
+    context_object_name = 'breeds_list'
+    paginate_by = 3
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -70,6 +71,7 @@ class CatsListView(ListView):
     model = Cat
     template_name = 'cats/cats.html'
     context_object_name = 'objects_list'
+    paginate_by = 3
 
     def get_queryset(self):
         # Скрываем неактивных кошек из публичного списка
@@ -117,6 +119,7 @@ class CatDetailView(DetailView):
         # Передаем актуальное число просмотров в шаблон
         context['title'] = f'Кошка {cat.name}'
         context['views_count'] = fresh_cat.views
+        context['cat_reviews'] = cat.reviews.filter(sign_of_review=True)[:5]
 
         return context
 
@@ -267,6 +270,56 @@ class CatDeleteView(LoginRequiredMixin, View):
 
         # Перенаправляем на список
         return HttpResponseRedirect(reverse_lazy('cats:cats_list'))
+
+
+# Поиск по кошкам
+class CatSearchListView(ListView):
+    model = Cat
+    template_name = 'cats/cats.html' # Используем тот же шаблон списка кошек
+    context_object_name = 'cats_list'
+    paginate_by = 3
+
+    def get_queryset(self):
+        query = self.request.GET.get('q', '')
+        if query:
+            # Ищем по имени ИЛИ породе, только активные
+            return Cat.objects.filter(
+                Q(name__icontains=query) | Q(breed__name__icontains=query),
+                is_active=True
+            )
+        return Cat.objects.filter(is_active=True) # Если запрос пустой, показываем всех активных
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = f'Результаты поиска: "{self.request.GET.get("q", "")}"'
+        context['search_query'] = self.request.GET.get('q', '') # Чтобы сохранить текст в поле ввода
+        return context
+
+#Поиск по породам
+
+
+class BreedSearchListView(ListView):
+    model = Breed
+    template_name = 'cats/breeds.html'  # Используем существующий шаблон списка пород
+    context_object_name = 'breeds_list'
+    paginate_by = 3
+
+    def get_query(self):
+        return self.request.GET.get('q', '')
+
+    def get_queryset(self):
+        query = self.get_query()
+        if query:
+            # Ищем породы, название которых содержит запрос (регистронезависимо)
+            return Breed.objects.filter(name__icontains=query)
+        # Если запрос пустой, показываем все породы
+        return Breed.objects.all()
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = f'Результаты поиска пород: "{self.get_query()}"'
+        context['search_query'] = self.get_query()  # Чтобы сохранить текст в поле ввода
+        return context
 
 
 # Переключение активности

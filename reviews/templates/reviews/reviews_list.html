@@ -1,0 +1,36 @@
+{% extends 'cats/base.html' %}
+{% block content %}
+<div class="container mt-5">
+    <!-- ФОРМА ПОИСКА ПО ОТЗЫВАМ -->
+    <div class="row mb-4">
+        <div class="col-md-8 mx-auto">
+            <form action="{% url 'reviews:reviews_search' %}" method="get" class="d-flex">
+                <input class="form-control me-2" type="search" name="q"
+                       placeholder="Поиск по отзывам..."
+                       value="{{ search_query|default:'' }}"
+                       aria-label="Search">
+                <button class="btn btn-outline-success" type="submit">Найти</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="d-flex justify-content-between mb-4 flex-wrap gap-2">
+        <h2>{{ title }}</h2>
+        <div>
+            <a href="{% url 'reviews:reviews_list' %}" class="btn btn-outline-success me-2">Опубликованные</a>
+            <a href="{% url 'reviews:reviews_deactivated' %}" class="btn btn-outline-warning me-2">На модерации</a>
+            <a href="{% url 'reviews:review_create' %}" class="btn btn-primary">Написать отзыв</a>
+        </div>
+    </div>
+
+    <div class="row">
+        {% for review in reviews_list %}
+            {% include 'reviews/includes/inc_review_card.html' with object=review %}
+        {% empty %}
+            <p class="col-12 text-center text-muted py-4">Отзывов пока нет.</p>
+        {% endfor %}
+
+        {% include 'cats/includes/inc_pagination.html' %}
+    </div>
+</div>
+{% endblock %}

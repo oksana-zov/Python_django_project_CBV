@@ -7,12 +7,14 @@ from .models import Review
 from .forms import ReviewForm
 from .utils import generate_slug
 from users.models import UserRoles
-
+from django.db.models import Q
+from django.http import Http404
 
 class ReviewListView(ListView):
     model = Review
     template_name = 'reviews/reviews_list.html'
     context_object_name = 'reviews_list'
+    paginate_by = 3
 
     def get_queryset(self):
         return super().get_queryset().filter(sign_of_review=True)
@@ -27,6 +29,7 @@ class ReviewDeactivatedListView(LoginRequiredMixin, ListView):
     model = Review
     template_name = 'reviews/reviews_list.html'
     context_object_name = 'reviews_list'
+    paginate_by = 3
 
     def get_queryset(self):
         qs = super().get_queryset().filter(sign_of_review=False)
@@ -71,7 +74,7 @@ class ReviewDetailView(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['title'] = self.review.title
+        context['title'] = self.object.title
         return context
 
 
@@ -100,10 +103,34 @@ class ReviewDeleteView(PermissionRequiredMixin, DeleteView):
     success_url = reverse_lazy('reviews:reviews_list')
 
 
+
+# ПОИСК ПО ОТЗЫВАМ
+class ReviewSearchListView(ListView):
+    model = Review
+    template_name = 'reviews/reviews_list.html'
+    context_object_name = 'reviews_list'
+    paginate_by = 3
+
+    def get_queryset(self):
+        query = self.request.GET.get('q', '')
+        if query:
+            # Ищем по заголовку ИЛИ тексту отзыва, только опубликованные
+            return Review.objects.filter(
+                Q(title__icontains=query) | Q(content__icontains=query),
+                sign_of_review=True
+            )
+        return Review.objects.filter(sign_of_review=True)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = f'Результаты поиска отзывов: "{self.request.GET.get("q", "")}"'
+        context['search_query'] = self.request.GET.get('q', '')
+        return context
+
+
 def review_toggle_activity(request, slug):
     review = get_object_or_404(Review, slug=slug)
-    if request.user.role not in (UserRoles.ADMIN, UserRoles.MODERATOR):
-        from django.http import Http404
+    if not request.user.is_authenticated or request.user.role not in ('admin', 'moderator'):
         raise Http404()
 
     review.sign_of_review = not review.sign_of_review

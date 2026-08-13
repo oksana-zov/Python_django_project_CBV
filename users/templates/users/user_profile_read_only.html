@@ -41,7 +41,10 @@
                         <div class="mt-4 d-flex gap-2 justify-content-center flex-wrap">
                             <a href="{% url 'users:user_update' %}" class="btn btn-warning">️ Редактировать профиль</a>
                             <a href="{% url 'users:user_change_password' %}" class="btn btn-info text-white"> Сменить пароль</a>
-                            <a href="{% url 'users:user_logout' %}" class="btn btn-danger">🚪 Выйти</a>
+                            <form method="post" action="{% url 'users:user_logout' %}" style="display:inline;">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-danger">🚪 Выйти</button>
+                            </form>
                             <a href="{% url 'users:user_generate_password' %}" class="btn btn-outline-danger">🎲 Сгенерировать новый</a>
                         </div>
                     {% else %}

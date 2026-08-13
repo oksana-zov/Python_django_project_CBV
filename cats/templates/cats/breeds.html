@@ -4,23 +4,33 @@
 <div class="container mt-5">
     <h1 class="mb-4">Все породы кошек</h1>
 
-    <div class="row">
-        {% for breed in objects_list %}
-        <div class="col-md-4 mb-4">
-            <div class="card h-100 shadow-sm">
-                <div class="card-body">
-                    <h5 class="card-title">{{ breed.name }}</h5>
-                    <p class="card-text text-muted">
-                        {{ breed.description|default:"Описание отсутствует" }}
-                    </p>
+    <!-- ФОРМА ПОИСКА -->
+    {% include 'cats/includes/inc_breed_search_form.html' %}
+
+    <div class="row mt-4">
+        {% for breed in breeds_list %}
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body d-flex flex-column">
+                        <h5 class="card-title">{{ breed.name }}</h5>
+                        <p class="card-text text-muted">
+                            {{ breed.description|default:"Описание отсутствует" }}
+                        </p>
+                        <a href="{% url 'cats:breeds_cats' breed.pk %}"
+                           class="btn btn-outline-primary btn-sm mt-auto">
+                           Смотреть кошек
+                        </a>
+                    </div>
                 </div>
             </div>
-        </div>
         {% empty %}
-        <div class="col-12">
-            <div class="alert alert-info">Пока нет добавленных пород.</div>
-        </div>
+            <div class="col-12">
+                <div class="alert alert-info">Пока нет добавленных пород.</div>
+            </div>
         {% endfor %}
     </div>
+
+    <!-- ПАГИНАЦИЯ -->
+    {% include 'cats/includes/inc_pagination.html' %}
 </div>
 {% endblock %}

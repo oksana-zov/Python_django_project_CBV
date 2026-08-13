@@ -55,6 +55,7 @@ class UserListView(LoginRequiredMixin, ListView):
     model = User
     template_name = 'users/users_list.html'
     context_object_name = 'users_list'
+    paginate_by = 3
 
     def get_queryset(self):
         # Показываем только активных пользователей
