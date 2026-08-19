@@ -75,12 +75,12 @@ WSGI_APPLICATION = 'config.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
-#DATABASES = {
+# DATABASES = {
 #    'default': {
 #        'ENGINE': 'django.db.backends.sqlite3',
 #        'NAME': BASE_DIR / 'db.sqlite3',
 #    }
-#}
+# }
 
 load_dotenv()
 
@@ -156,20 +156,28 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / "media"
 
 # --- НАСТРОЙКИ ПОЧТЫ ---
-#EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend' # Реальная отправка
-#EMAIL_HOST = 'smtp.yandex.ru'
-#EMAIL_PORT = 465
-#EMAIL_USE_SSL = True # Для 465 порта обычно используется SSL
-# EMAIL_USE_TLS = False # Если используем SSL, TLS обычно выключают
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend' # Реальная отправка
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True      # Для порта 587 используется TLS
+EMAIL_USE_SSL = False     # SSL выключаем
 
 # Берем данные из .env файла
-#EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
-#EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
 
 # Дополнительные настройки
-#SERVER_EMAIL = EMAIL_HOST_USER      # Адрес для технических писем (ошибки и т.д.)
-#DEFAULT_FROM_EMAIL = EMAIL_HOST_USER # Адрес "От кого" по умолчанию
-#EMAIL_ADMIN = EMAIL_HOST_USER       # Адрес администратора (если нужен)
+SERVER_EMAIL = EMAIL_HOST_USER      # Адрес для технических писем (ошибки и т.д.)
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER # Адрес "От кого" по умолчанию
+# EMAIL_ADMIN = EMAIL_HOST_USER       # Адрес администратора (если нужен)
 
 # Временная настройка для проверки логики
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+# EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'LOCATION': 'unique-snowflake',
+    }
+}
