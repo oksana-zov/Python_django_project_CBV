@@ -4,9 +4,11 @@ from django.conf import settings
 
 NULLABLE = {'blank': True, 'null': True}
 
+
 class Breed(models.Model):
     name = models.CharField(max_length=100, verbose_name='Порода')
     description = models.CharField(max_length=1000, verbose_name='Описание', **NULLABLE)
+
     def __str__(self):
         return self.name
 

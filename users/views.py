@@ -1,6 +1,5 @@
-from django.shortcuts import render, reverse, redirect
-from django.http import HttpResponseRedirect, HttpResponse
-from django.contrib.auth import authenticate, login, logout, update_session_auth_hash
+from django.shortcuts import reverse, redirect
+from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 import random
@@ -13,13 +12,7 @@ from django.urls import reverse_lazy
 from django.views.generic import CreateView, UpdateView, DetailView, ListView
 from django.contrib.auth.views import LoginView, LogoutView, PasswordChangeView
 from django.contrib.auth.mixins import LoginRequiredMixin
-
 from users.models import User
-from users.forms import (
-    UserRegisterForm, UserLoginForm, UserUpdateForm,
-    UserChangePasswordForm
-)
-from users.services import send_register_email
 
 
 # РЕГИСТРАЦИЯ
@@ -138,4 +131,3 @@ def user_generate_new_password_view(request):
     send_new_password_email(request.user.email, new_password)
     messages.success(request, 'Новый пароль сгенерирован и отправлен вам на почту!')
     return redirect(reverse('users:user_profile'))
-

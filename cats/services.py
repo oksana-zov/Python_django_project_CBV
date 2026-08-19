@@ -1,6 +1,7 @@
 from django.core.mail import send_mail
 from django.conf import settings
 
+
 def send_views_mail(cat_object, owner_email, views_count):
     """Отправляет письмо владельцу при достижении кратного 20 просмотрам"""
     send_mail(

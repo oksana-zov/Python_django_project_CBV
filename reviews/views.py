@@ -2,13 +2,16 @@ from django.views.generic import ListView, DetailView, CreateView, UpdateView, D
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.shortcuts import get_object_or_404, redirect
 from django.http import HttpResponseForbidden
-from django.urls import reverse_lazy, reverse
+from django.urls import reverse_lazy
 from .models import Review
 from .forms import ReviewForm
 from .utils import generate_slug
 from users.models import UserRoles
 from django.db.models import Q
 from django.http import Http404
+from reviews.services import censor_text
+from django.contrib import messages
+
 
 class ReviewListView(ListView):
     model = Review
@@ -55,6 +58,21 @@ class ReviewCreateView(LoginRequiredMixin, CreateView):
             return HttpResponseForbidden()
 
         review = form.save(commit=False)
+
+        # БЛОК ЦЕНЗУРЫ
+        original_text = form.cleaned_data.get('content', '')
+        _, has_bad_words = censor_text(original_text)
+
+        # Если есть плохие слова — блокируем сохранение
+        if has_bad_words:
+            form.add_error('content',
+                           'Ваш отзыв содержит недопустимые слова. Пожалуйста, удалите их или замените на корректные.')
+            return self.form_invalid(form)
+
+        # Если всё чисто — сохраняем
+        review = form.save(commit=False)
+        review.sign_of_review = False
+
         if review.slug == 'temp_slug':
             review.slug = generate_slug()
         review.author = self.request.user
@@ -85,8 +103,7 @@ class ReviewUpdateView(LoginRequiredMixin, UpdateView):
 
     def get_object(self, queryset=None):
         review = super().get_object(queryset)
-        if review.author != self.request.user and self.request.user.role not in (UserRoles.ADMIN, UserRoles.MODERATOR):
-            from django.http import Http404
+        if review.author != self.request.user:
             raise Http404()
         return review
 
@@ -101,7 +118,6 @@ class ReviewDeleteView(PermissionRequiredMixin, DeleteView):
     template_name = 'reviews/review_confirm_delete.html'
     permission_required = 'reviews.delete_review'
     success_url = reverse_lazy('reviews:reviews_list')
-
 
 
 # ПОИСК ПО ОТЗЫВАМ

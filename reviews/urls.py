@@ -7,6 +7,7 @@ from reviews.views import (
 
 app_name = 'reviews'
 
+
 urlpatterns = [
     path('', ReviewListView.as_view(), name='reviews_list'),
     path('deactivated/', ReviewDeactivatedListView.as_view(), name='reviews_deactivated'),

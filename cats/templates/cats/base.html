@@ -32,6 +32,7 @@
                         <li><a href="{% url 'reviews:reviews_list' %}" class="text-white">Отзывы</a></li>
                         <li class="py-2"><hr class="bg-secondary"></li>
                         {% if user.is_authenticated %}
+                            <li><a href="{% url 'cats:my_cats' %}" class="text-white">🐱 Мои кошки</a></li>
                             <li><a href="{% url 'users:user_profile' %}" class="text-white">👤 Мой профиль</a></li>
                             <li><form method="post" action="{% url 'users:user_logout' %}" style="display:inline;">
                                     {% csrf_token %}

@@ -38,7 +38,7 @@
                         </a>
 
                         <!-- Кнопка ИЗМЕНИТЬ -->
-                        {% if user.is_authenticated and cat.owner == user or user.role in 'admin,moderator' %}
+                        {% if user.is_authenticated and user == cat.owner %}
                             <a href="{% url 'cats:cat_update' cat.pk %}"
                                class="btn btn-warning btn-sm"
                                title="Редактировать">

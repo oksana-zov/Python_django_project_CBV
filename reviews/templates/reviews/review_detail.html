@@ -20,7 +20,7 @@
                     <a href="{% url 'reviews:reviews_list' %}" class="btn btn-secondary btn-sm">← Назад к списку</a>
 
                     <div class="d-flex gap-2">
-                        {% if user == review.author or user.role in 'admin,moderator' %}
+                        {% if user == review.author %}
                             <a href="{% url 'reviews:review_update' review.slug %}" class="btn btn-warning btn-sm">Редактировать</a>
                         {% endif %}
 
