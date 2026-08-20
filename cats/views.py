@@ -71,7 +71,7 @@ class BreedCatsListView(ListView):
 
 
 # 4. ОБЩИЙ СПИСОК КОШЕК (только активные)
-@method_decorator(cache_page(60 * 2), name='dispatch')  # Кэшируем на 15 минут
+# @method_decorator(cache_page(60 * 2), name='dispatch')
 class CatsListView(ListView):
     model = Cat
     template_name = 'cats/cats.html'
@@ -352,11 +352,10 @@ class BreedSearchListView(ListView):
 
 # Переключение активности
 def cat_toggle_activity(request, pk):
+    cat = get_object_or_404(Cat, pk=pk)
     # Проверка прав: только админ или владелец может переключать
     if request.user.role not in ['admin', 'moderator'] and cat.owner != request.user:
         raise Http404
-
-    cat = get_object_or_404(Cat, pk=pk)
 
     cat.is_active = not cat.is_active
     cat.save()

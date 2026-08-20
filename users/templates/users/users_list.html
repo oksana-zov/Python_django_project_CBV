@@ -10,7 +10,6 @@
                     <h5 class="card-title">{{ user.get_full_name|default:user.email }}</h5>
                     <p class="card-text text-muted">Роль: {{ user.role }}</p>
 
-                    <!-- ИСПРАВЛЕНО ИМЯ МАРШРУТА -->
                     <a href="{% url 'users:user_public_profile' user.pk %}"
                        class="btn btn-outline-primary btn-sm mt-auto">
                        Подробнее

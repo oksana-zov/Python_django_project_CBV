@@ -18,7 +18,9 @@
         <h2>{{ title }}</h2>
         <div>
             <a href="{% url 'reviews:reviews_list' %}" class="btn btn-outline-success me-2">Опубликованные</a>
-            <a href="{% url 'reviews:reviews_deactivated' %}" class="btn btn-outline-warning me-2">На модерации</a>
+            {% if user.role == 'admin' or user.role == 'moderator' %}
+                <a href="{% url 'reviews:reviews_deactivated' %}" class="btn btn-outline-warning me-2">На модерации</a>
+            {% endif %}
             <a href="{% url 'reviews:review_create' %}" class="btn btn-primary">Написать отзыв</a>
         </div>
     </div>

@@ -48,7 +48,7 @@ class Cat(models.Model):
 class Pedigree(models.Model):
     cat = models.ForeignKey(Cat, on_delete=models.CASCADE, related_name='pedigrees', verbose_name='Кошка')
     parent_name = models.CharField(max_length=100, verbose_name='Имя родителя')
-    parent_breed = models.CharField(max_length=100, verbose_name='Порода родителя')
+    parent_breed = models.CharField(max_length=100, blank=True, verbose_name='Порода родителя')
     title = models.CharField(max_length=200, blank=True, verbose_name='Титул/Звание')
 
     class Meta:
