@@ -38,7 +38,7 @@ class ReviewDeactivatedListView(LoginRequiredMixin, ListView):
         qs = super().get_queryset().filter(sign_of_review=False)
         # Админ видит все, модератор и автор - только свои/на модерации
         user = self.request.user
-        if user.role == UserRoles.ADMIN:
+        if user.role in (UserRoles.ADMIN, UserRoles.MODERATOR):
             return qs
         return qs.filter(author=user)
 
